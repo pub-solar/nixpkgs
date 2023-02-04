@@ -3,11 +3,13 @@
 with lib;
 
 let
-
   cfg = config.services.mailman;
 
-  inherit (pkgs.mailmanPackages.buildEnvs { withHyperkitty = cfg.hyperkitty.enable; withLDAP = cfg.ldap.enable; })
-    mailmanEnv webEnv;
+  inherit (pkgs.mailmanPackages.buildEnvs {
+    withHyperkitty = cfg.hyperkitty.enable;
+    withLDAP = cfg.ldap.enable;
+    extraPythonPackages = cfg.extraPythonPackages;
+  }) mailmanEnv webEnv;
 
   withPostgresql = config.services.postgresql.enable;
 
@@ -275,9 +277,12 @@ in {
       };
 
       extraPythonPackages = mkOption {
-        description = lib.mdDoc "Packages to add to the python environment used by mailman and mailman-web";
-        type = types.listOf types.package;
-        default = [];
+        type = types.functionTo (types.listOf types.package);
+        default = _: [];
+        defaultText = literalExpression ''
+          python3Packages: with python3Packages; [];
+        '';
+        description = lib.mdDoc "Packages to add to the python environment used by mailman";
       };
 
       settings = mkOption {

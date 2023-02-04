@@ -21,10 +21,12 @@ let
                 , mailman-hyperkitty ? self.mailman-hyperkitty
                 , withHyperkitty ? false
                 , withLDAP ? false
+                , extraPythonPackages ? ps: []
                 }:
       {
         mailmanEnv = self.python3.withPackages
           (ps: [ mailman ps.psycopg2 ]
+            ++ (extraPythonPackages ps)
             ++ lib.optional withHyperkitty mailman-hyperkitty
             ++ lib.optionals withLDAP [ ps.python-ldap ps.django-auth-ldap ]);
         webEnv = self.python3.withPackages
