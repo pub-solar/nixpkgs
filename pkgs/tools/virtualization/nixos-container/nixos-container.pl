@@ -334,6 +334,7 @@ sub isContainerRunning {
 
 sub terminateContainer {
     my $leader = getLeader;
+    system("systemctl", "stop", "--no-block", "container\@$containerName");
     system("machinectl", "terminate", $containerName) == 0
         or die "$0: failed to terminate container\n";
     # Wait for the leader process to exit
@@ -357,8 +358,8 @@ sub stopContainer {
 }
 
 sub restartContainer {
-    stopContainer;
-    startContainer;
+    system("systemctl", "restart", "container\@$containerName") == 0
+        or die "$0: failed to restart container\n";
 }
 
 # Run a command in the container.
